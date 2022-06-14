@@ -48,6 +48,6 @@ fn cmd() -> Result<(), error::Error> {
 
 fn generate(_: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
   let mut hdl = handlebars::Handlebars::new();
-  println!("{}", hdl.render_template("{{ yo }} duder, ok.", &json!({"yo": 100}))?);
+  println!("{}", hdl.render_template("{{ yo }} duder, ok.", &json!({"yo": cmd.base}))?);
   Ok(())
 }
