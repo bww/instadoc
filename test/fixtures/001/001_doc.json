@@ -4,13 +4,32 @@
     "type": "text/markdown",
     "data": "# Cool header\nSome great data."
   },
+  "sections": {
+    "main": {
+      "title": "Main"
+    }
+  },
   "routes": [
     {
+      "section": "main",
       "title": "GET /foo/bar",
       "method": "GET",
       "resource": "/foo/bar",
+      "params": {
+        "length": {
+          "type": "number",
+          "detail": {
+            "content": "The maximum number of results to include in a page"
+          }
+        }
+      },
       "examples": [
         {
+          "title": "First example",
+          "detail": {
+            "type": "text/markdown",
+            "data": "# Cool header\nSome great data."
+          },
           "request": {},
           "response": {}
         }
