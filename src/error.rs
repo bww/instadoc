@@ -3,6 +3,7 @@ use std::fmt;
 use std::num;
 
 use handlebars;
+use serde_json;
 
 #[derive(Debug)]
 pub enum Error {
@@ -11,6 +12,7 @@ pub enum Error {
   ParseIntError(num::ParseIntError),
   IOError(io::Error),
   RenderError(handlebars::RenderError),
+  JSONError(serde_json::Error)
 }
 
 impl From<std::num::ParseIntError> for Error {
@@ -31,6 +33,12 @@ impl From<handlebars::RenderError> for Error {
   }
 }
 
+impl From<serde_json::Error> for Error {
+  fn from(err: serde_json::Error) -> Self {
+    Self::JSONError(err)
+  }
+}
+
 impl fmt::Display for Error {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
@@ -39,6 +47,7 @@ impl fmt::Display for Error {
       Self::ParseIntError(err) => err.fmt(f),
       Self::IOError(err) => err.fmt(f),
       Self::RenderError(err) => err.fmt(f),
+      Self::JSONError(err) => err.fmt(f),
     }
   }
 }

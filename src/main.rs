@@ -1,5 +1,7 @@
 mod error;
+mod model;
 
+use std::fs;
 use std::process;
 
 use handlebars;
@@ -23,10 +25,10 @@ enum Command {
 
 #[derive(Args, Debug)]
 struct GenerateOptions {
-  #[clap(long, short='b', help="The base URL to resolve against")]
-  base: String,
-  #[clap(help="The URL to resolve against the base; if a URL is not provided it is read from STDIN")]
-  url: Option<String>,
+  #[clap(long, short='t', help="The output document title")]
+  title: String,
+  #[clap(help="Documents to process")]
+  docs: Vec<String>,
 }
 
 fn main() {
@@ -48,6 +50,14 @@ fn cmd() -> Result<(), error::Error> {
 
 fn generate(_: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
   let mut hdl = handlebars::Handlebars::new();
-  println!("{}", hdl.render_template("{{ yo }} duder, ok.", &json!({"yo": cmd.base}))?);
+
+  for path in &cmd.docs {
+    let data = fs::read_to_string(path)?;
+    let suite: model::Suite = serde_json::from_str(&data)?;
+    println!(">>> {:?}", suite);
+    println!("{}", hdl.render_template("# {{ title }} [IS THE TITLE!].", &suite)?);
+  }
+  
+  println!("{}", hdl.render_template("{{ yo }} duder, ok.", &json!({"yo": cmd.title}))?);
   Ok(())
 }

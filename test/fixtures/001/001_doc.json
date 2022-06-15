@@ -1,0 +1,20 @@
+{
+  "title": "Dashboard Management",
+  "detail": {
+    "type": "text/markdown",
+    "data": "# Cool header\nSome great data."
+  },
+  "routes": [
+    {
+      "title": "GET /foo/bar",
+      "method": "GET",
+      "resource": "/foo/bar",
+      "examples": [
+        {
+          "request": {},
+          "response": {}
+        }
+      ]
+    }
+  ]
+}
