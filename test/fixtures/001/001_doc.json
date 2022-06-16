@@ -19,7 +19,8 @@
         "length": {
           "type": "number",
           "detail": {
-            "content": "The maximum number of results to include in a page"
+            "type": "text/plain",
+            "data": "The maximum number of results to include in a page"
           }
         }
       },
@@ -30,8 +31,12 @@
             "type": "text/markdown",
             "data": "# Cool header\nSome great data."
           },
-          "request": {},
-          "response": {}
+          "request": {
+            "text": "GET /foo HTTP/1.1\n"
+          },
+          "response": {
+            "text": "200 Ok\n"
+          }
         }
       ]
     }

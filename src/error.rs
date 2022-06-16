@@ -2,6 +2,8 @@ use std::io;
 use std::fmt;
 use std::num;
 
+use crate::model;
+
 use handlebars;
 use serde_json;
 
@@ -12,7 +14,8 @@ pub enum Error {
   ParseIntError(num::ParseIntError),
   IOError(io::Error),
   RenderError(handlebars::RenderError),
-  JSONError(serde_json::Error)
+  JSONError(serde_json::Error),
+  ModelError(model::error::Error),
 }
 
 impl From<std::num::ParseIntError> for Error {
@@ -39,6 +42,12 @@ impl From<serde_json::Error> for Error {
   }
 }
 
+impl From<model::error::Error> for Error {
+  fn from(err: model::error::Error) -> Self {
+    Self::ModelError(err)
+  }
+}
+
 impl fmt::Display for Error {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
@@ -48,6 +57,7 @@ impl fmt::Display for Error {
       Self::IOError(err) => err.fmt(f),
       Self::RenderError(err) => err.fmt(f),
       Self::JSONError(err) => err.fmt(f),
+      Self::ModelError(err) => err.fmt(f),
     }
   }
 }

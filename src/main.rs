@@ -8,6 +8,8 @@ use handlebars;
 use clap::{Parser, Subcommand, Args};
 use serde_json::json;
 
+use model::Content;
+
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 pub struct Options {
@@ -25,8 +27,8 @@ enum Command {
 
 #[derive(Args, Debug)]
 struct GenerateOptions {
-  #[clap(long, short='t', help="The output document title")]
-  title: String,
+  #[clap(long, short='t', help="The template document to use for rendering")]
+  template: String,
   #[clap(help="Documents to process")]
   docs: Vec<String>,
 }
@@ -49,15 +51,17 @@ fn cmd() -> Result<(), error::Error> {
 }
 
 fn generate(_: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
+  let tmpl = fs::read_to_string(&cmd.template)?;
   let mut hdl = handlebars::Handlebars::new();
-
+  hdl.register_template_string("suite", tmpl);
+  
   for path in &cmd.docs {
     let data = fs::read_to_string(path)?;
     let suite: model::Suite = serde_json::from_str(&data)?;
     println!(">>> {:?}", suite);
-    println!("{}", hdl.render_template("# {{ title }} [IS THE TITLE!].", &suite)?);
+    println!();
+    println!("{}", hdl.render("suite", &suite)?);
   }
   
-  println!("{}", hdl.render_template("{{ yo }} duder, ok.", &json!({"yo": cmd.title}))?);
   Ok(())
 }
