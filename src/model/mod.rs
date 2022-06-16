@@ -9,7 +9,7 @@ use comrak;
 pub struct Suite {
   title: Option<String>,
   detail: Option<Content>,
-  sections: Option<collections::HashMap<String, Section>>,
+  sections: Option<Vec<Section>>,
   routes: Vec<Route>,
 }
 
@@ -72,6 +72,13 @@ impl Content {
     match self.mime.as_str() {
       "text/markdown" => Ok(comrak::markdown_to_html(&self.data, &comrak::ComrakOptions::default())),
       _ => Err(error::Error::UnsupportedContentType(self.mime.to_owned())),
+    }
+  }
+  
+  pub fn text(&self) -> String {
+    match self.render() {
+      Ok(text) => text,
+      Err(err) => format!("* * * Could not render: {} * * *", err),
     }
   }
 }

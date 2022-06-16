@@ -4,7 +4,7 @@ mod model;
 use std::fs;
 use std::process;
 
-use handlebars;
+use handlebars::{self, handlebars_helper};
 use clap::{Parser, Subcommand, Args};
 use serde_json::json;
 
@@ -53,6 +53,10 @@ fn cmd() -> Result<(), error::Error> {
 fn generate(_: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
   let tmpl = fs::read_to_string(&cmd.template)?;
   let mut hdl = handlebars::Handlebars::new();
+  
+  handlebars_helper!(render: |v: Content| v.text());
+  
+  hdl.register_helper("render", Box::new(render));
   hdl.register_template_string("suite", tmpl);
   
   for path in &cmd.docs {

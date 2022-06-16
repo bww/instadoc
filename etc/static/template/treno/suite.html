@@ -6,7 +6,15 @@
   <body>
     <h1>{{ title }}</h1>
     {{ #if detail }}
-      [[{{ detail.render }}]]
+      {{{~ render detail }}}
     {{ /if }}
+    
+    {{ #if sections }}
+      <h2>Sections</h2>
+      {{ #each sections }}
+        {{{ this.title }}}
+      {{ /each }}
+    {{ /if }}
+    
   </body>
 </html>
