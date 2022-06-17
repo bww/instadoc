@@ -39,6 +39,7 @@
           {{{~ render detail ~}}}
         </div>
         {{ /if }}
+        
         {{ #if attrs }}
           {{ #each attrs }}
             {{ #if (eq @key "scopes") }}
@@ -46,6 +47,25 @@
             {{ /if }}
           {{ /each }}
         {{ /if }}
+        
+        {{ #if params }}
+          <h4>Query Parameters </h4>
+          <table>
+            <tr>
+              <td>Name</td>
+              <td>Type</td>
+              <td>Description</td>
+            </tr>
+            {{ #each params }}
+            <tr>
+              <td>{{~ name ~}}</td>
+              <td>{{~ type ~}}</td>
+              <td>{{~ render detail ~}}</td>
+            </tr>
+            {{ /each }}
+          </table>
+        {{ /if }}
+
       {{ /each }}
     </section>
     {{ /if }}

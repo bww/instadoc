@@ -75,6 +75,7 @@ pub struct Content {
 impl Content {
   pub fn render(&self) -> Result<String, error::Error> {
     match self.mime.as_str() {
+      "text/plain"    => Ok(self.data.to_owned()),
       "text/markdown" => Ok(comrak::markdown_to_html(&self.data, &comrak::ComrakOptions::default())),
       _ => Err(error::Error::UnsupportedContentType(self.mime.to_owned())),
     }
