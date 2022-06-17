@@ -2,6 +2,7 @@ mod error;
 mod model;
 
 use std::fs;
+use std::io;
 use std::process;
 
 use handlebars::{self, handlebars_helper};
@@ -29,6 +30,8 @@ enum Command {
 struct GenerateOptions {
   #[clap(long, short='t', help="The template document to use for rendering")]
   template: String,
+  #[clap(long, short='o', help="The output document path")]
+  output: Option<String>,
   #[clap(help="Documents to process")]
   docs: Vec<String>,
 }
@@ -50,21 +53,26 @@ fn cmd() -> Result<(), error::Error> {
   }
 }
 
-fn generate(_: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
+fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
   let tmpl = fs::read_to_string(&cmd.template)?;
   let mut hdl = handlebars::Handlebars::new();
   
   handlebars_helper!(render: |v: Content| v.text());
-  
   hdl.register_helper("render", Box::new(render));
   hdl.register_template_string("suite", tmpl);
+  
+  let mut out: Box<dyn io::Write> = match &cmd.output {
+    Some(path) => Box::new(fs::OpenOptions::new().write(true).open(path)?),
+    None => Box::new(io::stdout()),
+  };
   
   for path in &cmd.docs {
     let data = fs::read_to_string(path)?;
     let suite: model::Suite = serde_json::from_str(&data)?;
-    println!(">>> {:?}", suite);
-    println!();
-    println!("{}", hdl.render("suite", &suite)?);
+    if opt.debug {
+      println!(">>> {:?}", suite);
+    }
+    out.write(hdl.render("suite", &suite)?.as_bytes())?;
   }
   
   Ok(())

@@ -7,7 +7,19 @@
   "sections": [
     {
       "key": "main",
-      "title": "Main"
+      "title": "Main",
+      "detail": {
+        "type": "text/markdown",
+        "data": "# Cool section; enjoy this section."
+      }
+    },
+    {
+      "key": "workspace",
+      "title": "Workspaces"
+    },
+    {
+      "key": "project",
+      "title": "Projects"
     }
   ],
   "routes": [
@@ -16,15 +28,16 @@
       "title": "GET /foo/bar",
       "method": "GET",
       "resource": "/foo/bar",
-      "params": {
-        "length": {
+      "params": [
+        {
+          "name": "length",
           "type": "number",
           "detail": {
             "type": "text/plain",
             "data": "The maximum number of results to include in a page"
           }
         }
-      },
+      ],
       "examples": [
         {
           "title": "First example",

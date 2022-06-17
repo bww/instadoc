@@ -1,7 +1,5 @@
 pub mod error;
 
-use std::collections;
-
 use serde::{self, Serialize, Deserialize};
 use comrak;
 
@@ -22,6 +20,7 @@ pub struct Header {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Section {
   title: Option<String>,
+  detail: Option<Content>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -29,15 +28,16 @@ pub struct Route {
   title: Option<String>,
   method: String,
   resource: String,
-  params: Option<collections::HashMap<String, Parameter>>,
+  params: Option<Vec<Parameter>>,
   examples: Option<Vec<Example>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Parameter {
+  name: String,
   #[serde(rename(serialize="type", deserialize="type"))]
-  data_type: String,
-  detail: Content,
+  data_type: Option<String>,
+  detail: Option<Content>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

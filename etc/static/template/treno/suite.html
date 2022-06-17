@@ -9,12 +9,17 @@
       {{{~ render detail }}}
     {{ /if }}
     
+    <section>
     {{ #if sections }}
       <h2>Sections</h2>
       {{ #each sections }}
-        {{{ this.title }}}
+        <h3>{{{ this.title }}}</h3>
+        {{ #if detail }}
+          {{{~ render detail }}}
+        {{ /if }}
       {{ /each }}
     {{ /if }}
+    </section>
     
   </body>
 </html>
