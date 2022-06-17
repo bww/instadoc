@@ -1,6 +1,9 @@
 pub mod error;
 
+use std::collections;
+
 use serde::{self, Serialize, Deserialize};
+use serde_json;
 use comrak;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -29,6 +32,7 @@ pub struct Route {
   detail: Option<Content>,
   method: String,
   resource: String,
+  attrs: Option<collections::HashMap<String, serde_json::value::Value>>,
   params: Option<Vec<Parameter>>,
   examples: Option<Vec<Example>>,
 }

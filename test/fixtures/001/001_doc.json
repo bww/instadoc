@@ -32,6 +32,9 @@
         "type": "text/markdown",
         "data": "# Cool header\nSome great data."
       },
+      "attrs": {
+        "scopes": ["read:workspace", "write:connection"]
+      },
       "params": [
         {
           "name": "length",
