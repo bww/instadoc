@@ -26,6 +26,7 @@ pub struct Section {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Route {
   title: Option<String>,
+  detail: Option<Content>,
   method: String,
   resource: String,
   params: Option<Vec<Parameter>>,

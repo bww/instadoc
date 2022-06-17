@@ -28,6 +28,10 @@
       "title": "GET /foo/bar",
       "method": "GET",
       "resource": "/foo/bar",
+      "detail": {
+        "type": "text/markdown",
+        "data": "# Cool header\nSome great data."
+      },
       "params": [
         {
           "name": "length",
