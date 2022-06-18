@@ -5,22 +5,22 @@
   </head>
   <body>
     <h1>{{ title }}</h1>
-    <div class="content">
     {{ #if detail }}
+    <div class="content">
       {{{~ render detail ~}}}
-    {{ /if }}
     </div>
+    {{ /if }}
     
     {{ #if sections }}
     <section>
       <h2>Sections</h2>
       {{ #each sections }}
         <h3>{{ title }}</h3>
-        <div class="content">
         {{ #if detail }}
+        <div class="content">
           {{{~ render detail ~}}}
-        {{ /if }}
         </div>
+        {{ /if }}
       {{ /each }}
     </section>
     {{ /if }}
@@ -41,6 +41,7 @@
         {{ /if }}
         
         {{ #if attrs }}
+          <h4>Attributes</h4>
           {{ #each attrs }}
             {{ #if (eq @key "scopes") }}
               {{ #each this }}<span class="scope">{{ this }}</span> {{ /each }}
