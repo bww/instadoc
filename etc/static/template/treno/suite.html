@@ -30,20 +30,21 @@
       <h2>Routes</h2>
       {{ #each routes }}
         {{ #if title }}
-        <h3>{{ title }}</h3>
+          <h3>{{ title }}</h3>
         {{ else }}
-        <h3>{{ method }} {{ resource }}</h3>
+          <h3>{{ method }} {{ resource }}</h3>
         {{ /if }}
         {{ #if detail }}
-        <div class="content">
+          <div class="content">
           {{{~ render detail }}}
-        </div>
+          </div>
         {{ /if }}
         
         {{ #if attrs }}
           <h4>Attributes</h4>
           {{ #each attrs }}
             {{ #if (eq @key "scopes") }}
+            Required ACL scopes:
             <ul>
               {{ #each this }}<li class="scope">{{ this }}</li>{{ /each }}
             </ul>
@@ -67,6 +68,44 @@
             </tr>
             {{ /each }}
           </table>
+        {{ /if }}
+        
+        {{ #if examples }}
+          <h4>Examples </h4>
+          {{ #each examples }}
+            {{ #if title }}
+              <h3>{{ title }}</h3>
+            {{ /if }}
+            {{ #if detail }}
+              <div class="content">
+              {{{~ render detail }}}
+              </div>
+            {{ /if }}
+            {{ #if request }}
+              <figure>
+                <pre>
+                  {{ request.http }}
+                </pre>
+                {{ #if request.title }}
+                <figcaption>{{ request.title }}</figcaption>
+                {{ else }}
+                <figcaption>Example Request</figcaption>
+                {{ /if }}
+              </figure>
+            {{ /if }}
+            {{ #if response }}
+              <figure>
+                <pre>
+                  {{ response.http }}
+                </pre>
+                {{ #if response.title }}
+                <figcaption>{{ response.title }}</figcaption>
+                {{ else }}
+                <figcaption>Example Response</figcaption>
+                {{ /if }}
+              </figure>
+            {{ /if }}
+          {{ /each }}
         {{ /if }}
 
       {{ /each }}

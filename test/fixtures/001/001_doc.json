@@ -56,10 +56,10 @@
             "data": "# Cool header\nSome great data."
           },
           "request": {
-            "text": "GET /foo HTTP/1.1\n"
+            "http": "GET /foo HTTP/1.1\n"
           },
           "response": {
-            "text": "200 Ok\n"
+            "http": "200 Ok\n"
           }
         }
       ]
