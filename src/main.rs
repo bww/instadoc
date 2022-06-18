@@ -71,7 +71,7 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
     let mut suite: model::Suite = serde_json::from_str(&data)?;
     suite.process();
     if opt.debug {
-      println!(">>> {:?}", suite);
+      println!("{}", serde_json::to_string_pretty(&suite)?);
     }
     out.write(hdl.render("suite", &suite)?.as_bytes())?;
   }

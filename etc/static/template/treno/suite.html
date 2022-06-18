@@ -27,15 +27,19 @@
             {{{ render detail }}}
           </div>
           {{ /if }}
-          {{ #each routes }}
-            <a href="{{ url }}">
+          <ul>
+          {{ #each links }}
+            <li>
+              <a href="{{ url }}">
               {{~ #if title }}
                 {{ title }}
               {{ else }}
                 {{ url }}
               {{ /if ~}}
-            </a>
+              </a>
+            </li>
           {{ /each }}
+          </ul>
         {{ /each }}
       {{ else }}
         <ul>

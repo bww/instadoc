@@ -64,8 +64,8 @@ impl TOC {
     
     let mut after: Vec<Section> = Vec::new();
     for section in before {
-      if let Some(routes) = byroute.get(&section.key) {
-        after.push(section.with_routes(routes.to_vec()));
+      if let Some(links) = byroute.get(&section.key) {
+        after.push(section.with_links(links.to_vec()));
       }else{
         after.push(section.to_owned());
       }
@@ -83,17 +83,17 @@ pub struct Section {
   pub key: String,
   pub title: String,
   pub detail: Option<Content>,
-  #[serde(skip)]
-  pub routes: Option<Vec<Link>>,
+  #[serde(skip_deserializing)]
+  pub links: Option<Vec<Link>>,
 }
 
 impl Section {
-  fn with_routes(&self, routes: Vec<Link>) -> Section {
+  fn with_links(&self, links: Vec<Link>) -> Section {
     Section{
       key: self.key.to_owned(),
       title: self.title.to_owned(),
       detail: self.detail.to_owned(),
-      routes: Some(routes),
+      links: Some(links),
     }
   }
 }
