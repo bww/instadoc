@@ -10,7 +10,7 @@ use comrak;
 pub struct Suite {
   title: Option<String>,
   detail: Option<Content>,
-  sections: Option<Vec<Section>>,
+  toc: Option<TOC>,
   routes: Vec<Route>,
 }
 
@@ -21,13 +21,23 @@ pub struct Header {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct TOC {
+  detail: Option<Content>,
+  sections: Option<Vec<Section>>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Section {
+  key: Option<String>,
   title: Option<String>,
   detail: Option<Content>,
+  #[serde(skip)]
+  routes: Option<Vec<Link>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Route {
+  sections: Option<Vec<String>>,
   title: Option<String>,
   detail: Option<Content>,
   method: String,
@@ -58,6 +68,12 @@ pub struct Listing {
   entity_type: Option<String>,
   title: Option<String>,
   data: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Link {
+  title: Option<String>,
+  url: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

@@ -11,17 +11,30 @@
     </div>
     {{ /if }}
     
-    {{ #if sections }}
+    {{ #if toc }}
     <section>
-      <h2>Sections</h2>
-      {{ #each sections }}
-        <h3>{{ title }}</h3>
-        {{ #if detail }}
+      <h2>Contents</h2>
+      {{ #if detail }}
         <div class="content">
           {{{~ render detail }}}
         </div>
-        {{ /if }}
-      {{ /each }}
+      {{ /if }}
+      {{ #if toc.sections }}
+        {{ #each sections }}
+          <h3>{{ title }}</h3>
+          {{ #if detail }}
+          <div class="content">
+            {{{~ render detail }}}
+          </div>
+          {{ /if }}
+        {{ /each }}
+      {{ else }}
+        <ul>
+        {{ #each routes }}
+          <li><a href="#FIX-ME">{{ title }}</a></li>
+        {{ /each }}
+        </ul>
+      {{ /if }}
     </section>
     {{ /if }}
     
