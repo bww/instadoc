@@ -150,7 +150,7 @@ impl Content {
   pub fn render(&self) -> Result<String, error::Error> {
     match self.mime.as_str() {
       "text/plain"    => Ok(handlebars::html_escape(&self.data)),
-      "text/markdown" => Ok(comrak::markdown_to_html(&self.data, &comrak::ComrakOptions::default())),
+      "text/markdown" => Ok(comrak::markdown_to_html(&self.data, &markdown_options())),
       _ => Err(error::Error::UnsupportedContentType(self.mime.to_owned())),
     }
   }
@@ -161,4 +161,12 @@ impl Content {
       Err(err) => format!("* * * Could not render: {} * * *", err),
     }
   }
+}
+
+fn markdown_options() -> comrak::ComrakOptions {
+  let mut opts = comrak::ComrakOptions::default();
+  opts.extension.strikethrough = true;
+  opts.extension.table = true;
+  opts.render.github_pre_lang = true;
+  opts
 }
