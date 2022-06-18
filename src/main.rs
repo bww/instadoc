@@ -62,7 +62,7 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
   hdl.register_template_string("suite", tmpl);
   
   let mut out: Box<dyn io::Write> = match &cmd.output {
-    Some(path) => Box::new(fs::OpenOptions::new().write(true).open(path)?),
+    Some(path) => Box::new(fs::OpenOptions::new().write(true).create(true).open(path)?),
     None => Box::new(io::stdout()),
   };
   

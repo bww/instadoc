@@ -18,7 +18,7 @@
         <h3>{{ title }}</h3>
         {{ #if detail }}
         <div class="content">
-          {{{~ render detail ~}}}
+          {{{~ render detail }}}
         </div>
         {{ /if }}
       {{ /each }}
@@ -36,7 +36,7 @@
         {{ /if }}
         {{ #if detail }}
         <div class="content">
-          {{{~ render detail ~}}}
+          {{{~ render detail }}}
         </div>
         {{ /if }}
         
@@ -44,8 +44,10 @@
           <h4>Attributes</h4>
           {{ #each attrs }}
             {{ #if (eq @key "scopes") }}
-              {{ #each this }}<span class="scope">{{ this }}</span> {{ /each }}
-            {{ /if }}
+            <ul>
+              {{ #each this }}<li class="scope">{{ this }}</li>{{ /each }}
+            </ul>
+            {{~ /if ~}}
           {{ /each }}
         {{ /if }}
         
@@ -53,15 +55,15 @@
           <h4>Query Parameters </h4>
           <table>
             <tr>
-              <td>Name</td>
-              <td>Type</td>
-              <td>Description</td>
+              <td class="header">Name</td>
+              <td class="header">Type</td>
+              <td class="header">Description</td>
             </tr>
             {{ #each params }}
             <tr>
-              <td>{{~ name ~}}</td>
-              <td>{{~ type ~}}</td>
-              <td>{{~ render detail ~}}</td>
+              <td class="name">{{~ name ~}}</td>
+              <td class="type">{{~ type ~}}</td>
+              <td class="descr">{{~ render detail ~}}</td>
             </tr>
             {{ /each }}
           </table>
