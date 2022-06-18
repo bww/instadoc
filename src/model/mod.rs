@@ -8,31 +8,82 @@ use comrak;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Suite {
-  title: Option<String>,
-  detail: Option<Content>,
-  toc: Option<TOC>,
-  routes: Vec<Route>,
+  pub title: Option<String>,
+  pub detail: Option<Content>,
+  pub toc: Option<TOC>,
+  pub routes: Vec<Route>,
+}
+
+impl Suite {
+  pub fn normalize(&mut self) {
+    if let Some(toc) = &self.toc {
+      self.toc = Some(toc.with_routes(&self.routes));
+    }
+  }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Header {
-  title: Option<String>,
-  detail: Option<Content>,
+  pub title: Option<String>,
+  pub detail: Option<Content>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TOC {
-  detail: Option<Content>,
-  sections: Option<Vec<Section>>,
+  pub detail: Option<Content>,
+  pub sections: Option<Vec<Section>>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+impl TOC {
+  pub fn with_routes(&self, routes: &Vec<Route>) -> TOC {
+    let before = match &self.sections {
+      Some(sections) => sections,
+      None => return TOC{
+        detail: self.detail.to_owned(),
+        sections: None,
+      },
+    };
+    
+    let mut byroute: collections::HashMap<String, Vec<Link>> = collections::HashMap::new();
+    for route in routes {
+      if let Some(sections) = &route.sections {
+        for section in sections {
+          let mut links: Vec<Link>  = match byroute.get(section) {
+            Some(links) => links.to_vec(),
+            None => Vec::new(),
+          };
+          links.push(Link{
+            title: route.title.to_owned(),
+            url: "#FIX_ME_OK".to_string(),
+          });
+          byroute.insert(section.to_owned(), links.to_vec());
+        }
+      }
+    }
+    
+    let mut after: Vec<Section> = Vec::new();
+    for section in before {
+      if let Some(routes) = byroute.get(&section.key) {
+        after.push(section.with_routes(routes.to_vec()));
+      }else{
+        after.push(section.to_owned());
+      }
+    }
+    
+    return TOC{
+      detail: self.detail.to_owned(),
+      sections: Some(after),
+    }
+  }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Section {
-  key: Option<String>,
-  title: Option<String>,
-  detail: Option<Content>,
+  pub key: String,
+  pub title: String,
+  pub detail: Option<Content>,
   #[serde(skip)]
-  routes: Option<Vec<Link>>,
+  pub routes: Option<Vec<Link>>,
 }
 
 impl Section {
@@ -48,50 +99,50 @@ impl Section {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Route {
-  sections: Option<Vec<String>>,
-  title: Option<String>,
-  detail: Option<Content>,
-  method: String,
-  resource: String,
-  attrs: Option<collections::HashMap<String, serde_json::value::Value>>,
-  params: Option<Vec<Parameter>>,
-  examples: Option<Vec<Example>>,
+  pub sections: Option<Vec<String>>,
+  pub title: Option<String>,
+  pub detail: Option<Content>,
+  pub method: String,
+  pub resource: String,
+  pub attrs: Option<collections::HashMap<String, serde_json::value::Value>>,
+  pub params: Option<Vec<Parameter>>,
+  pub examples: Option<Vec<Example>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Parameter {
-  name: String,
+  pub name: String,
   #[serde(rename(serialize="type", deserialize="type"))]
-  data_type: Option<String>,
-  detail: Option<Content>,
+  pub data_type: Option<String>,
+  pub detail: Option<Content>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Example {
-  title: Option<String>,
-  detail: Option<Content>,
-  request: Option<Listing>,
-  response: Option<Listing>,
+  pub title: Option<String>,
+  pub detail: Option<Content>,
+  pub request: Option<Listing>,
+  pub response: Option<Listing>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Listing {
-  entity_type: Option<String>,
-  title: Option<String>,
-  data: Option<String>,
+  pub entity_type: Option<String>,
+  pub title: Option<String>,
+  pub data: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Link {
-  title: Option<String>,
-  url: String,
+  pub title: Option<String>,
+  pub url: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Content {
   #[serde(rename(serialize="type", deserialize="type"))]
-  mime: String,
-  data: String,
+  pub mime: String,
+  pub data: String,
 }
 
 impl Content {

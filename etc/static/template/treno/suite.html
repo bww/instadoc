@@ -7,26 +7,35 @@
     <h1>{{ title }}</h1>
     {{ #if detail }}
     <div class="content">
-      {{{~ render detail ~}}}
+      {{{ render detail }}}
     </div>
     {{ /if }}
     
     {{ #if toc }}
     <section>
       <h2>Contents</h2>
-      {{ #if detail }}
+      {{ #if toc.detail }}
         <div class="content">
-          {{{~ render detail }}}
+          {{{ render toc.detail }}}
         </div>
       {{ /if }}
       {{ #if toc.sections }}
-        {{ #each sections }}
+        {{ #each toc.sections }}
           <h3>{{ title }}</h3>
           {{ #if detail }}
           <div class="content">
-            {{{~ render detail }}}
+            {{{ render detail }}}
           </div>
           {{ /if }}
+          {{ #each routes }}
+            <a href="{{ url }}">
+              {{~ #if title }}
+                {{ title }}
+              {{ else }}
+                {{ url }}
+              {{ /if ~}}
+            </a>
+          {{ /each }}
         {{ /each }}
       {{ else }}
         <ul>
@@ -49,7 +58,7 @@
         {{ /if }}
         {{ #if detail }}
           <div class="content">
-          {{{~ render detail }}}
+          {{{ render detail }}}
           </div>
         {{ /if }}
         
@@ -91,7 +100,7 @@
             {{ /if }}
             {{ #if detail }}
               <div class="content">
-              {{{~ render detail }}}
+              {{{ render detail }}}
               </div>
             {{ /if }}
             {{ #if request }}
