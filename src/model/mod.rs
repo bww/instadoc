@@ -49,22 +49,15 @@ pub struct Parameter {
 pub struct Example {
   title: Option<String>,
   detail: Option<Content>,
-  request: Option<Request>,
-  response: Option<Response>,
+  request: Option<Listing>,
+  response: Option<Listing>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct Request {
+pub struct Listing {
   entity_type: Option<String>,
   title: Option<String>,
-  http: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct Response {
-  entity_type: Option<String>,
-  title: Option<String>,
-  http: Option<String>,
+  data: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

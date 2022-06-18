@@ -25,7 +25,7 @@
     </section>
     {{ /if }}
     
-    {{ #if sections }}
+    {{ #if routes }}
     <section>
       <h2>Routes</h2>
       {{ #each routes }}
@@ -84,7 +84,7 @@
             {{ #if request }}
               <figure>
                 <pre>
-                  {{~ request.http ~}}
+                  {{~ request.data ~}}
                 </pre>
                 {{ #if request.title }}
                 <figcaption>{{ request.title }}</figcaption>
@@ -96,7 +96,7 @@
             {{ #if response }}
               <figure>
                 <pre>
-                  {{~ response.http ~}}
+                  {{~ response.data ~}}
                 </pre>
                 {{ #if response.title }}
                 <figcaption>{{ response.title }}</figcaption>
