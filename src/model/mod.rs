@@ -35,6 +35,17 @@ pub struct Section {
   routes: Option<Vec<Link>>,
 }
 
+impl Section {
+  fn with_routes(&self, routes: Vec<Link>) -> Section {
+    Section{
+      key: self.key.to_owned(),
+      title: self.title.to_owned(),
+      detail: self.detail.to_owned(),
+      routes: Some(routes),
+    }
+  }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Route {
   sections: Option<Vec<String>>,
@@ -70,13 +81,13 @@ pub struct Listing {
   data: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Link {
   title: Option<String>,
   url: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Content {
   #[serde(rename(serialize="type", deserialize="type"))]
   mime: String,
