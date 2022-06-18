@@ -84,7 +84,7 @@
             {{ #if request }}
               <figure>
                 <pre>
-                  {{ request.http }}
+                  {{~ request.http ~}}
                 </pre>
                 {{ #if request.title }}
                 <figcaption>{{ request.title }}</figcaption>
@@ -96,7 +96,7 @@
             {{ #if response }}
               <figure>
                 <pre>
-                  {{ response.http }}
+                  {{~ response.http ~}}
                 </pre>
                 {{ #if response.title }}
                 <figcaption>{{ response.title }}</figcaption>
