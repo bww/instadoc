@@ -4,6 +4,7 @@ use std::collections;
 
 use serde::{self, Serialize, Deserialize};
 use serde_json;
+use handlebars;
 use comrak;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -48,7 +49,7 @@ impl TOC {
     for route in routes {
       if let Some(sections) = &route.sections {
         for section in sections {
-          let mut links: Vec<Link>  = match byroute.get(section) {
+          let mut links: Vec<Link> = match byroute.get(section) {
             Some(links) => links.to_vec(),
             None => Vec::new(),
           };
@@ -148,7 +149,7 @@ pub struct Content {
 impl Content {
   pub fn render(&self) -> Result<String, error::Error> {
     match self.mime.as_str() {
-      "text/plain"    => Ok(self.data.to_owned()),
+      "text/plain"    => Ok(handlebars::html_escape(&self.data)),
       "text/markdown" => Ok(comrak::markdown_to_html(&self.data, &comrak::ComrakOptions::default())),
       _ => Err(error::Error::UnsupportedContentType(self.mime.to_owned())),
     }
