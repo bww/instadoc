@@ -69,7 +69,7 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
   for path in &cmd.docs {
     let data = fs::read_to_string(path)?;
     let mut suite: model::Suite = serde_json::from_str(&data)?;
-    suite.normalize();
+    suite.process();
     if opt.debug {
       println!(">>> {:?}", suite);
     }

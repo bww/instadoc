@@ -16,7 +16,7 @@ pub struct Suite {
 }
 
 impl Suite {
-  pub fn normalize(&mut self) {
+  pub fn process(&mut self) {
     if let Some(toc) = &self.toc {
       self.toc = Some(toc.with_routes(&self.routes));
     }
