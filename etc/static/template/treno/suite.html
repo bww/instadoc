@@ -2,6 +2,29 @@
 <html>
   <head>
     <title>{{ title }}</title>
+    <meta charset="utf-8">
+    <style type="text/css">
+      html {
+        font-family: 'Helvetica Neue', 'Helvetica', sans-serif;
+        margin: 25px 50px;
+      }
+      a {
+        color: #0969da;
+      }
+      code {
+        background-color: rgba(175, 184, 193, 0.2);
+        padding: 0.2em 0.4em;
+        border-radius: 6px;
+      }
+      pre {
+        background-color: rgba(175, 184, 193, 0.2);
+        padding: 1em;
+        border-radius: 6px;
+      }
+      div.content h1 h2 h3 h4 h5{
+        font-size: 0.85em;
+      }
+    </style>
   </head>
   <body>
     <h1>{{ title }}</h1>
@@ -113,7 +136,7 @@
                 {{ #if request.title }}
                 <figcaption>{{ request.title }}</figcaption>
                 {{ else }}
-                <figcaption>Example Request</figcaption>
+                <figcaption>Request</figcaption>
                 {{ /if }}
               </figure>
             {{ /if }}
@@ -125,7 +148,7 @@
                 {{ #if response.title }}
                 <figcaption>{{ response.title }}</figcaption>
                 {{ else }}
-                <figcaption>Example Response</figcaption>
+                <figcaption>Response</figcaption>
                 {{ /if }}
               </figure>
             {{ /if }}
