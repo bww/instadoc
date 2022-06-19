@@ -19,6 +19,8 @@ use model::{Content, Route};
 pub struct Options {
   #[clap(long)]
   debug: bool,
+  #[clap(long)]
+  verbose: bool,
   #[clap(subcommand)]
   command: Command,
 }
@@ -68,8 +70,12 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
   hdl.register_template_string("suite", tmpl);
   
   for input in &cmd.docs {
+    if opt.verbose {
+      println!("----> {}", input);
+    }
+    
     let data = fs::read_to_string(input)?;
-    let mut w: Box<dyn io::Write> = match &cmd.output {
+    let mut writer: Box<dyn io::Write> = match &cmd.output {
       Some(output) => Box::new(fs::OpenOptions::new().write(true).create(true).truncate(true).open(output_path(input, output, "html")?)?),
       None => Box::new(io::stdout()),
     };
@@ -83,7 +89,7 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
       println!("{}", serde_json::to_string_pretty(&suite)?);
     }
     
-    w.write(hdl.render("suite", &suite)?.as_bytes())?;
+    writer.write(hdl.render("suite", &suite)?.as_bytes())?;
   }
   
   Ok(())
@@ -102,6 +108,5 @@ fn output_path<P: AsRef<path::Path>>(input: P, root: &str, ext: &str) -> Result<
   buf.push(name);
   buf.set_extension(ext);
   
-  println!(">>> {:?}", buf);
   Ok(buf.into_os_string())
 }
