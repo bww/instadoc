@@ -1,5 +1,6 @@
 mod error;
 mod model;
+mod slug;
 
 use std::fs;
 use std::io;
@@ -69,7 +70,9 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
   for path in &cmd.docs {
     let data = fs::read_to_string(path)?;
     let mut suite: model::Suite = serde_json::from_str(&data)?;
-    suite.process();
+    suite.process(model::Meta{
+      generated: chrono::Utc::now(),
+    });
     if opt.debug {
       println!("{}", serde_json::to_string_pretty(&suite)?);
     }

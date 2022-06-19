@@ -6,6 +6,9 @@ use serde::{self, Serialize, Deserialize};
 use serde_json;
 use handlebars;
 use comrak;
+use chrono;
+
+use crate::slug;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Suite {
@@ -13,14 +16,22 @@ pub struct Suite {
   pub detail: Option<Content>,
   pub toc: Option<TOC>,
   pub routes: Vec<Route>,
+  #[serde(skip_deserializing)]
+  pub meta: Option<Meta>,
 }
 
 impl Suite {
-  pub fn process(&mut self) {
+  pub fn process(&mut self, meta: Meta) {
     if let Some(toc) = &self.toc {
       self.toc = Some(toc.with_routes(&self.routes));
+      self.meta = Some(meta);
     }
   }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Meta {
+  pub generated: chrono::DateTime<chrono::Utc>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -108,6 +119,16 @@ pub struct Route {
   pub attrs: Option<collections::HashMap<String, serde_json::value::Value>>,
   pub params: Option<Vec<Parameter>>,
   pub examples: Option<Vec<Example>>,
+}
+
+impl Route {
+  fn slug(&self) -> String {
+    let title = match &self.title {
+      Some(title) => title.to_owned(),
+      None => format!("{} {}", &self.method, &self.resource),
+    };
+    slug::slugify(&title)
+  }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
