@@ -11,6 +11,13 @@
       a {
         color: #0969da;
       }
+      h1, h2 {
+        padding-bottom: 0.3em;
+        border-bottom: 1px solid hsla(210, 18%, 87%, 1);
+      }
+      section {
+        margin: 3em 0;
+      }
       code {
         background-color: rgba(175, 184, 193, 0.2);
         padding: 0.2em 0.4em;
@@ -20,6 +27,7 @@
         background-color: rgba(175, 184, 193, 0.2);
         padding: 1em;
         border-radius: 6px;
+        overflow: auto;
       }
       div.content h1 h2 h3 h4 h5{
         font-size: 0.85em;
@@ -74,12 +82,11 @@
     
     {{ #if routes }}
     <section>
-      <h2>Routes</h2>
       {{ #each routes }}
         {{ #if title }}
-          <h3>{{ title }}</h3>
+          <h2>{{ title }}</h2>
         {{ else }}
-          <h3>{{ method }} {{ resource }}</h3>
+          <h2>{{ method }} {{ resource }}</h2>
         {{ /if }}
         {{ #if detail }}
           <div class="content">
@@ -88,7 +95,7 @@
         {{ /if }}
         
         {{ #if attrs }}
-          <h4>Attributes</h4>
+          <h3>Attributes</h3>
           {{ #each attrs }}
             {{ #if (eq @key "scopes") }}
             Required ACL scopes:
@@ -100,7 +107,7 @@
         {{ /if }}
         
         {{ #if params }}
-          <h4>Query Parameters </h4>
+          <h3>Query Parameters </h3>
           <table>
             <tr>
               <td class="header">Name</td>
@@ -118,10 +125,10 @@
         {{ /if }}
         
         {{ #if examples }}
-          <h4>Examples </h4>
+          <h3>Examples </h3>
           {{ #each examples }}
             {{ #if title }}
-              <h3>{{ title }}</h3>
+              <h4>{{ title }}</h4>
             {{ /if }}
             {{ #if detail }}
               <div class="content">
