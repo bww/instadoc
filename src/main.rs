@@ -10,7 +10,7 @@ use handlebars::{self, handlebars_helper};
 use clap::{Parser, Subcommand, Args};
 use serde_json::json;
 
-use model::Content;
+use model::{Content, Route};
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -59,7 +59,10 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
   let mut hdl = handlebars::Handlebars::new();
   
   handlebars_helper!(render: |v: Content| v.text());
+  handlebars_helper!(slug: |v: Route| v.slug());
+  
   hdl.register_helper("render", Box::new(render));
+  hdl.register_helper("slug", Box::new(slug));
   hdl.register_template_string("suite", tmpl);
   
   let mut out: Box<dyn io::Write> = match &cmd.output {

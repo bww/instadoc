@@ -83,11 +83,13 @@
     {{ #if routes }}
     <section>
       {{ #each routes }}
+        <a href="#{{ slug this }}">
         {{ #if title }}
           <h2>{{ title }}</h2>
         {{ else }}
           <h2>{{ method }} {{ resource }}</h2>
         {{ /if }}
+        </a>
         {{ #if detail }}
           <div class="content">
           {{{ render detail }}}

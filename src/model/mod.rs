@@ -66,7 +66,7 @@ impl TOC {
           };
           links.push(Link{
             title: route.title.to_owned(),
-            url: "#FIX_ME_OK".to_string(),
+            url: format!("#{}", route.slug()),
           });
           byroute.insert(section.to_owned(), links.to_vec());
         }
@@ -122,7 +122,7 @@ pub struct Route {
 }
 
 impl Route {
-  fn slug(&self) -> String {
+  pub fn slug(&self) -> String {
     let title = match &self.title {
       Some(title) => title.to_owned(),
       None => format!("{} {}", &self.method, &self.resource),
