@@ -4,6 +4,8 @@ mod slug;
 
 use std::fs;
 use std::io;
+use std::ffi;
+use std::path;
 use std::process;
 
 use handlebars::{self, handlebars_helper};
@@ -31,7 +33,7 @@ enum Command {
 struct GenerateOptions {
   #[clap(long, short='t', help="The template document to use for rendering")]
   template: String,
-  #[clap(long, short='o', help="The output document path")]
+  #[clap(long, short='o', help="The output document root to write files under")]
   output: Option<String>,
   #[clap(help="Documents to process")]
   docs: Vec<String>,
@@ -65,22 +67,41 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
   hdl.register_helper("slug", Box::new(slug));
   hdl.register_template_string("suite", tmpl);
   
-  let mut out: Box<dyn io::Write> = match &cmd.output {
-    Some(path) => Box::new(fs::OpenOptions::new().write(true).create(true).truncate(true).open(path)?),
-    None => Box::new(io::stdout()),
-  };
-  
-  for path in &cmd.docs {
-    let data = fs::read_to_string(path)?;
+  for input in &cmd.docs {
+    let data = fs::read_to_string(input)?;
+    let mut w: Box<dyn io::Write> = match &cmd.output {
+      Some(output) => Box::new(fs::OpenOptions::new().write(true).create(true).truncate(true).open(output_path(input, output, "html")?)?),
+      None => Box::new(io::stdout()),
+    };
+    
     let mut suite: model::Suite = serde_json::from_str(&data)?;
     suite.process(model::Meta{
       generated: chrono::Utc::now(),
     });
+    
     if opt.debug {
       println!("{}", serde_json::to_string_pretty(&suite)?);
     }
-    out.write(hdl.render("suite", &suite)?.as_bytes())?;
+    
+    w.write(hdl.render("suite", &suite)?.as_bytes())?;
   }
   
   Ok(())
+}
+
+fn output_path<P: AsRef<path::Path>>(input: P, root: &str, ext: &str) -> Result<ffi::OsString, error::Error> {
+  fs::create_dir_all(root)?;
+  
+  let name = match input.as_ref().file_name() {
+    Some(name) => name,
+    None => ffi::OsStr::new("api"),
+  };
+  
+  let mut buf = path::PathBuf::new();
+  buf.push(root);
+  buf.push(name);
+  buf.set_extension(ext);
+  
+  println!(">>> {:?}", buf);
+  Ok(buf.into_os_string())
 }
