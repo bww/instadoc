@@ -1,7 +1,7 @@
 
 use deunicode::deunicode_char;
 
-const sep: char = '-';
+const SEP: char = '-';
 
 pub fn slugify<S: AsRef<str>>(s: S) -> String {
   _slugify(s.as_ref())
@@ -9,7 +9,7 @@ pub fn slugify<S: AsRef<str>>(s: S) -> String {
 
 pub fn _slugify(s: &str) -> String {
   let mut slug = String::new();
-  let mut prev: char = sep; // starts with sep to avoid leading '-'
+  let mut prev: char = SEP; // starts with sep to avoid leading '-'
   
   for c in s.chars() {
     if c.is_ascii() {
@@ -34,8 +34,8 @@ fn convert(c: char, p: char) -> Option<char> {
   match c {
     '0'..='9' | 'a'..='z' => Some(c),
     'A'..='Z' => Some(((c as u8) - b'A' + b'a') as char),
-    _ => if p != sep {
-      Some(sep)
+    _ => if p != SEP {
+      Some(SEP)
     }else{
       None
     },

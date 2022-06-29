@@ -10,7 +10,6 @@ use std::process;
 
 use handlebars::{self, handlebars_helper};
 use clap::{Parser, Subcommand, Args};
-use serde_json::json;
 
 use model::{Content, Route};
 
@@ -67,7 +66,7 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
   
   hdl.register_helper("render", Box::new(render));
   hdl.register_helper("slug", Box::new(slug));
-  hdl.register_template_string("suite", tmpl);
+  hdl.register_template_string("suite", tmpl)?;
   
   for input in &cmd.docs {
     if opt.verbose {

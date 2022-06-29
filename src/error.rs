@@ -9,11 +9,10 @@ use serde_json;
 
 #[derive(Debug)]
 pub enum Error {
-  InvalidArgument(String),
-  MissingArgument(String),
   ParseIntError(num::ParseIntError),
   IOError(io::Error),
   RenderError(handlebars::RenderError),
+  TemplateError(handlebars::TemplateError),
   JSONError(serde_json::Error),
   ModelError(model::error::Error),
 }
@@ -36,6 +35,12 @@ impl From<handlebars::RenderError> for Error {
   }
 }
 
+impl From<handlebars::TemplateError> for Error {
+  fn from(err: handlebars::TemplateError) -> Self {
+    Self::TemplateError(err)
+  }
+}
+
 impl From<serde_json::Error> for Error {
   fn from(err: serde_json::Error) -> Self {
     Self::JSONError(err)
@@ -51,11 +56,10 @@ impl From<model::error::Error> for Error {
 impl fmt::Display for Error {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
-      Self::InvalidArgument(msg) => write!(f, "Invalid argument: {}", msg),
-      Self::MissingArgument(msg) => write!(f, "Missing argument: {}", msg),
       Self::ParseIntError(err) => err.fmt(f),
       Self::IOError(err) => err.fmt(f),
       Self::RenderError(err) => err.fmt(f),
+      Self::TemplateError(err) => err.fmt(f),
       Self::JSONError(err) => err.fmt(f),
       Self::ModelError(err) => err.fmt(f),
     }
