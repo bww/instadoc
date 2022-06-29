@@ -15,6 +15,7 @@ pub struct Suite {
   pub title: Option<String>,
   pub detail: Option<Content>,
   pub toc: Option<TOC>,
+  #[serde(default="Vec::new")]
   pub routes: Vec<Route>,
   #[serde(skip_deserializing)]
   pub meta: Option<Meta>,
