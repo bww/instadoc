@@ -36,6 +36,8 @@ struct GenerateOptions {
   template: String,
   #[clap(long, short='o', help="The output document root to write files under")]
   output: Option<String>,
+  #[clap(long, short='x', help="The path to write an index document to; if omitted, no index is generated")]
+  index: Option<String>,
   #[clap(help="Documents to process")]
   docs: Vec<String>,
 }

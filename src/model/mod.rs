@@ -11,6 +11,21 @@ use chrono;
 use crate::slug;
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct Index {
+  pub title: Option<String>,
+  pub detail: Option<Content>,
+  #[serde(default="Vec::new")]
+  pub entries: Vec<Entry>,
+  #[serde(skip_deserializing)]
+  pub meta: Option<Meta>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Entry {
+  pub link: Link,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Suite {
   pub title: Option<String>,
   pub detail: Option<Content>,
