@@ -46,27 +46,19 @@
     {{ /if }}
     
     <section>
-    {{ #each entries }}
-      <h3>{{ title }}</h3>
-      {{ #if detail }}
-      <div class="content">
-        {{{ render detail }}}
-      </div>
-      {{ /if }}
       <ul>
-      {{ #each links }}
+      {{ #each entries }}
         <li>
-          <a href="{{ url }}">
-          {{~ #if title }}
-            {{ title }}
+          <a href="{{ link.url }}">
+          {{~ #if link.title }}
+            {{ link.title }}
           {{ else }}
-            {{ url }}
+            {{ link.url }}
           {{ /if ~}}
           </a>
         </li>
       {{ /each }}
       </ul>
-    {{ /each }}
     </section>
     
     <footer>

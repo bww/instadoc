@@ -32,11 +32,11 @@ enum Command {
 
 #[derive(Args, Debug)]
 struct GenerateOptions {
-  #[clap(long, short='t', help="The template document to use for rendering")]
+  #[clap(long, short='t', help="The template document to use for rendering suites")]
   template: String,
   #[clap(long, short='o', help="The output document root to write files under")]
   output: Option<String>,
-  #[clap(long, short='x', help="The path to write an index document to; if omitted, no index is generated")]
+  #[clap(long, short='x', help="The template document to use for rendering an index; if omitted, no index is generated")]
   index: Option<String>,
   #[clap(help="Documents to process")]
   docs: Vec<String>,
@@ -60,15 +60,27 @@ fn cmd() -> Result<(), error::Error> {
 }
 
 fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
-  let tmpl = fs::read_to_string(&cmd.template)?;
   let mut hdl = handlebars::Handlebars::new();
+  let suite_tmpl = fs::read_to_string(&cmd.template)?;
+  let index_tmpl = match &cmd.index {
+    Some(indx) => Some(fs::read_to_string(indx)?),
+    None => None,
+  };
   
   handlebars_helper!(render: |v: Content| v.text());
   handlebars_helper!(slug: |v: Route| v.slug());
   
   hdl.register_helper("render", Box::new(render));
   hdl.register_helper("slug", Box::new(slug));
-  hdl.register_template_string("suite", tmpl)?;
+  hdl.register_template_string("suite", suite_tmpl)?;
+  
+  let mut entries: Option<Vec<model::Entry>> = match &index_tmpl {
+    Some(index_tmpl) => {
+      hdl.register_template_string("index", index_tmpl)?;
+      Some(Vec::new())
+    },
+    None => None,
+  };
   
   for input in &cmd.docs {
     if opt.verbose {
@@ -76,8 +88,12 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
     }
     
     let data = fs::read_to_string(input)?;
-    let mut writer: Box<dyn io::Write> = match &cmd.output {
-      Some(output) => Box::new(fs::OpenOptions::new().write(true).create(true).truncate(true).open(output_path(input, output, "html")?)?),
+    let output = match &cmd.output {
+      Some(output) => Some(output_path(input, output, "html")?),
+      None => None,
+    };
+    let mut writer: Box<dyn io::Write> = match &output {
+      Some(output) => Box::new(fs::OpenOptions::new().write(true).create(true).truncate(true).open(output)?),
       None => Box::new(io::stdout()),
     };
     
@@ -86,11 +102,48 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
       generated: chrono::Utc::now(),
     });
     
+    if let Some(output) = output {
+      if let Some(entries) = &mut entries {
+        let title = match &suite.title {
+          Some(title) => title.to_owned(),
+          None => input.to_owned(),
+        };
+        let url = match output.to_str() {
+          Some(unwrap) => unwrap.to_owned(),
+          None => "#invalid".to_owned(),
+        };
+        entries.push(model::Entry{
+          link: model::Link{
+            title: Some(title),
+            url: url,
+          },
+        });
+      }
+    }
+    
     if opt.debug {
       println!("{}", serde_json::to_string_pretty(&suite)?);
     }
     
     writer.write(hdl.render("suite", &suite)?.as_bytes())?;
+  }
+  
+  if let Some(entries) = entries {
+    let output = match &cmd.output {
+      Some(output) => Some(output_path("index", output, "html")?),
+      None => None,
+    };
+    let mut writer: Box<dyn io::Write> = match output {
+      Some(output) => Box::new(fs::OpenOptions::new().write(true).create(true).truncate(true).open(output)?),
+      None => Box::new(io::stdout()),
+    };
+    let context = model::Index{
+      title: Some("Some data".to_owned()),
+      detail: None,
+      entries: entries,
+      meta: None,
+    };
+    writer.write(hdl.render("index", &context)?.as_bytes())?;
   }
   
   Ok(())
