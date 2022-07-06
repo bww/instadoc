@@ -20,6 +20,12 @@ pub struct Index {
   pub meta: Option<Meta>,
 }
 
+impl Index {
+  pub fn process(&mut self, meta: Meta) {
+    self.meta = Some(meta);
+  }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Entry {
   pub link: Link,

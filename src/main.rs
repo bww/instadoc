@@ -10,6 +10,7 @@ use std::process;
 
 use handlebars::{self, handlebars_helper};
 use clap::{Parser, Subcommand, Args};
+use chrono::{DateTime, Utc};
 
 use model::{Content, Route};
 
@@ -71,9 +72,11 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
   
   handlebars_helper!(render: |v: Content| v.text());
   handlebars_helper!(slug: |v: Route| v.slug());
+  handlebars_helper!(format_date: |v: DateTime<Utc>| v.format("%b %e, %Y %R").to_string());
   
   hdl.register_helper("render", Box::new(render));
   hdl.register_helper("slug", Box::new(slug));
+  hdl.register_helper("format_date", Box::new(format_date));
   hdl.register_template_string("suite", suite_tmpl)?;
   
   let mut entries: Option<Vec<model::Entry>> = match &index_tmpl {
@@ -103,15 +106,15 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
       None => Box::new(io::stdout()),
     };
     
-    let mut suite: model::Suite = serde_json::from_str(&data)?;
-    suite.process(model::Meta{
+    let mut context: model::Suite = serde_json::from_str(&data)?;
+    context.process(model::Meta{
       index: convert_osstr(&index)?,
       generated: chrono::Utc::now(),
     });
     
     if let Some(output) = output {
       if let Some(entries) = &mut entries {
-        let title = match &suite.title {
+        let title = match &context.title {
           Some(title) => title.to_owned(),
           None => format_path(input)?,
         };
@@ -129,10 +132,10 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
     }
     
     if opt.debug {
-      println!("{}", serde_json::to_string_pretty(&suite)?);
+      println!("{}", serde_json::to_string_pretty(&context)?);
     }
     
-    writer.write(hdl.render("suite", &suite)?.as_bytes())?;
+    writer.write(hdl.render("suite", &context)?.as_bytes())?;
   }
   
   if let Some(entries) = entries {
@@ -144,12 +147,16 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
       Some(output) => Box::new(fs::OpenOptions::new().write(true).create(true).truncate(true).open(output)?),
       None => Box::new(io::stdout()),
     };
-    let context = model::Index{
+    let mut context = model::Index{
       title: Some(cmd.title.to_owned()),
       detail: None,
       entries: entries,
       meta: None,
     };
+    context.process(model::Meta{
+      index: convert_osstr(&index)?,
+      generated: chrono::Utc::now(),
+    });
     writer.write(hdl.render("index", &context)?.as_bytes())?;
   }
   
