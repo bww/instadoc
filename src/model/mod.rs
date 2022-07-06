@@ -38,15 +38,16 @@ pub struct Suite {
 
 impl Suite {
   pub fn process(&mut self, meta: Meta) {
+    self.meta = Some(meta);
     if let Some(toc) = &self.toc {
       self.toc = Some(toc.with_routes(&self.routes));
-      self.meta = Some(meta);
     }
   }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Meta {
+  pub index: Option<String>,
   pub generated: chrono::DateTime<chrono::Utc>,
 }
 

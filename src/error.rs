@@ -9,6 +9,7 @@ use serde_json;
 
 #[derive(Debug)]
 pub enum Error {
+  ConversionError(String),
   ParseIntError(num::ParseIntError),
   IOError(io::Error),
   RenderError(handlebars::RenderError),
@@ -56,6 +57,7 @@ impl From<model::error::Error> for Error {
 impl fmt::Display for Error {
   fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
     match self {
+      Self::ConversionError(msg) => write!(f, "Could not convert: {}", msg),
       Self::ParseIntError(err) => err.fmt(f),
       Self::IOError(err) => err.fmt(f),
       Self::RenderError(err) => err.fmt(f),

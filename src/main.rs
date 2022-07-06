@@ -32,6 +32,8 @@ enum Command {
 
 #[derive(Args, Debug)]
 struct GenerateOptions {
+  #[clap(long, short='T', help="The title of this documentation suite")]
+  title: String,
   #[clap(long, short='t', help="The template document to use for rendering suites")]
   template: String,
   #[clap(long, short='o', help="The output document root to write files under")]
@@ -81,6 +83,10 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
     },
     None => None,
   };
+  let index = match &cmd.output {
+    Some(output) => Some(output_path("index", output, "html")?),
+    None => None,
+  };
   
   for input in &cmd.docs {
     if opt.verbose {
@@ -99,6 +105,7 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
     
     let mut suite: model::Suite = serde_json::from_str(&data)?;
     suite.process(model::Meta{
+      index: convert_osstr(&index)?,
       generated: chrono::Utc::now(),
     });
     
@@ -106,7 +113,7 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
       if let Some(entries) = &mut entries {
         let title = match &suite.title {
           Some(title) => title.to_owned(),
-          None => input.to_owned(),
+          None => format_path(input)?,
         };
         let url = match output.to_str() {
           Some(unwrap) => unwrap.to_owned(),
@@ -138,7 +145,7 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
       None => Box::new(io::stdout()),
     };
     let context = model::Index{
-      title: Some("Some data".to_owned()),
+      title: Some(cmd.title.to_owned()),
       detail: None,
       entries: entries,
       meta: None,
@@ -147,6 +154,28 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
   }
   
   Ok(())
+}
+
+fn convert_osstr(input: &Option<ffi::OsString>) -> Result<Option<String>, error::Error> {
+  let input = match input {
+    Some(input) => input,
+    None => return Ok(None),
+  };
+  match input.to_str() {
+    Some(input) => Ok(Some(input.to_owned())),
+    None => Err(error::Error::ConversionError(format!("Invalid string: {:?}", input))),
+  }
+}
+
+fn format_path<P: AsRef<path::Path>>(input: P) -> Result<String, error::Error> {
+  let name = match input.as_ref().file_name() {
+    Some(name) => name,
+    None => return Err(error::Error::ConversionError("Invalid path".to_string())),
+  };
+  match name.to_str() {
+    Some(name) => Ok(name.to_owned()),
+    None => return Err(error::Error::ConversionError("Invalid path".to_string())),
+  }
 }
 
 fn output_path<P: AsRef<path::Path>>(input: P, root: &str, ext: &str) -> Result<ffi::OsString, error::Error> {
