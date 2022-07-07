@@ -1,6 +1,6 @@
 [package]
 name = "instadoc"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "A static site generator for API documentation"
 repository = "https://github.com/bww/instadoc"
