@@ -118,14 +118,22 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
           Some(title) => title.to_owned(),
           None => format_path(input)?,
         };
-        let url = match output.to_str() {
+        let url = match (&output).to_str() {
           Some(unwrap) => unwrap.to_owned(),
           None => "#invalid".to_owned(),
+        };
+        let rel = if let Some(index) = &index {
+          match relative_path(index, &output).to_str() {
+            Some(unwrap) => unwrap.to_owned(),
+            None => "#invalid".to_owned(),
+          }
+        }else{
+          url
         };
         entries.push(model::Entry{
           link: model::Link{
             title: Some(title),
-            url: url,
+            url: rel,
           },
         });
       }
@@ -185,6 +193,35 @@ fn format_path<P: AsRef<path::Path>>(input: P) -> Result<String, error::Error> {
   }
 }
 
+fn relative_path<P: AsRef<path::Path>>(a: P, b: P) -> path::PathBuf {
+  let ca = a.as_ref().components().collect::<Vec<_>>();
+  let cb = b.as_ref().components().collect::<Vec<_>>();
+  if ca.len() > cb.len() {
+    let mut c = path::PathBuf::new();
+    c.push(b);
+    return c;
+  }
+  
+  let mut n = 0;
+  for i in 0..ca.len() {
+    if ca[i] != cb[i] {
+      break;
+    }
+    n = i + 1;
+  }
+  
+  let u = ca.len() - n;
+  let mut c = path::PathBuf::new();
+  for _ in 0..u {
+    c.push("..");
+  }
+  for i in n..cb.len() {
+    c.push(cb[i]);
+  }
+  
+  c
+}
+
 fn output_path<P: AsRef<path::Path>>(input: P, root: &str, ext: &str) -> Result<ffi::OsString, error::Error> {
   fs::create_dir_all(root)?;
   
@@ -199,4 +236,20 @@ fn output_path<P: AsRef<path::Path>>(input: P, root: &str, ext: &str) -> Result<
   buf.set_extension(ext);
   
   Ok(buf.into_os_string())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  
+  #[test]
+  fn test_relative_path() {
+    assert_eq!(path::Path::new("b/c/d.foo"), relative_path(path::Path::new("/a"), path::Path::new("/a/b/c/d.foo")).as_path());
+    assert_eq!(path::Path::new("c/d.foo"), relative_path(path::Path::new("/a/b"), path::Path::new("/a/b/c/d.foo")).as_path());
+    assert_eq!(path::Path::new("d.foo"), relative_path(path::Path::new("/a/b/c"), path::Path::new("/a/b/c/d.foo")).as_path());
+    assert_eq!(path::Path::new(""), relative_path(path::Path::new("/a/b/c/d.foo"), path::Path::new("/a/b/c/d.foo")).as_path());
+    assert_eq!(path::Path::new("../c/d.foo"), relative_path(path::Path::new("/a/b/x"), path::Path::new("/a/b/c/d.foo")).as_path());
+    assert_eq!(path::Path::new("../../c/d.foo"), relative_path(path::Path::new("/a/b/x/y"), path::Path::new("/a/b/c/d.foo")).as_path());
+  }
+  
 }
