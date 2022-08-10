@@ -134,7 +134,6 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
         }else{
           url
         };
-        println!(">>> {:?} / {:?} / {}", &index, &output, &rel);
         entries.push(model::Entry{
           link: model::Link{
             title: Some(title),
