@@ -86,9 +86,9 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
     },
     None => None,
   };
-  let index = match &cmd.output {
-    Some(output) => Some(output_path("index", output, "html")?),
-    None => None,
+  let (base, index) = match &cmd.output {
+    Some(output) => (Some(output), Some(output_path("index", output, "html")?)),
+    None => (None, None),
   };
   
   for input in &cmd.docs {
@@ -123,13 +123,18 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
           None => "#invalid".to_owned(),
         };
         let rel = if let Some(index) = &index {
-          match relative_path(index, &output).to_str() {
+          let rel = match base {
+            Some(base) => relative_path(&ffi::OsString::from(&base), &output),
+            None => relative_path(index, &output),
+          };
+          match rel.to_str() {
             Some(unwrap) => unwrap.to_owned(),
             None => "#invalid".to_owned(),
           }
         }else{
           url
         };
+        println!(">>> {:?} / {:?} / {}", &index, &output, &rel);
         entries.push(model::Entry{
           link: model::Link{
             title: Some(title),
@@ -244,10 +249,14 @@ mod tests {
   
   #[test]
   fn test_relative_path() {
+    assert_eq!(path::Path::new("b.foo"), relative_path(path::Path::new("a"), path::Path::new("a/b.foo")).as_path());
+    assert_eq!(path::Path::new("b.foo"), relative_path(path::Path::new("/a"), path::Path::new("/a/b.foo")).as_path());
+    
     assert_eq!(path::Path::new("b/c/d.foo"), relative_path(path::Path::new("/a"), path::Path::new("/a/b/c/d.foo")).as_path());
     assert_eq!(path::Path::new("c/d.foo"), relative_path(path::Path::new("/a/b"), path::Path::new("/a/b/c/d.foo")).as_path());
     assert_eq!(path::Path::new("d.foo"), relative_path(path::Path::new("/a/b/c"), path::Path::new("/a/b/c/d.foo")).as_path());
     assert_eq!(path::Path::new(""), relative_path(path::Path::new("/a/b/c/d.foo"), path::Path::new("/a/b/c/d.foo")).as_path());
+    
     assert_eq!(path::Path::new("../c/d.foo"), relative_path(path::Path::new("/a/b/x"), path::Path::new("/a/b/c/d.foo")).as_path());
     assert_eq!(path::Path::new("../../c/d.foo"), relative_path(path::Path::new("/a/b/x/y"), path::Path::new("/a/b/c/d.foo")).as_path());
   }
