@@ -23,7 +23,7 @@ jobs:
         run: |
           package=instadoc-${{ github.ref_name }}-linux-x86_64
           mkdir -p $package/bin && cp target/release/instadoc $package/bin/instadoc
-          mkdir -p $package/etc && cp -r etc/static/template $package/etc/template
+          mkdir -p $package/etc/template && cp -r etc/static/template/ $package/etc/template
       - name: Package release
         run: tar -zcvf instadoc-${{ github.ref_name }}-linux-x86_64.tgz instadoc-${{ github.ref_name }}-linux-x86_64/bin
       - name: Create release
