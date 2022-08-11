@@ -19,8 +19,13 @@ jobs:
           override: true
       - name: Build
         run: cargo build --release --all-features
+      - name: Prepare release
+        run: |
+          package=instadoc-${{ github.ref_name }}-linux-x86_64/bin
+          mkdir -p $package/bin && cp target/release/instadoc $package/bin/instadoc
+          mkdir -p $package/etc/static && cp -r etc/static/template $package/etc/template
       - name: Package release
-        run: tar -zcvf instadoc-${{ github.ref_name }}-linux-x86_64.tgz target/release/instadoc
+        run: tar -zcvf instadoc-${{ github.ref_name }}-linux-x86_64.tgz instadoc-${{ github.ref_name }}-linux-x86_64/bin
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
