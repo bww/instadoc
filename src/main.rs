@@ -198,13 +198,8 @@ fn format_path<P: AsRef<path::Path>>(input: P) -> Result<String, error::Error> {
 }
 
 fn relative_path<P: AsRef<path::Path>>(a: P, b: P) -> path::PathBuf {
-  let ca = a.as_ref().components().collect::<Vec<_>>();
-  let cb = b.as_ref().components().collect::<Vec<_>>();
-  if ca.len() > cb.len() {
-    let mut c = path::PathBuf::new();
-    c.push(b);
-    return c;
-  }
+  let ca: Vec<_> = a.as_ref().components().collect();
+  let cb: Vec<_> = b.as_ref().components().collect();
   
   let mut n = 0;
   for i in 0..ca.len() {
@@ -258,6 +253,8 @@ mod tests {
     
     assert_eq!(path::Path::new("../c/d.foo"), relative_path(path::Path::new("/a/b/x"), path::Path::new("/a/b/c/d.foo")).as_path());
     assert_eq!(path::Path::new("../../c/d.foo"), relative_path(path::Path::new("/a/b/x/y"), path::Path::new("/a/b/c/d.foo")).as_path());
+    assert_eq!(path::Path::new("../../c/d/e/f.foo"), relative_path(path::Path::new("/a/b/x/y"), path::Path::new("/a/b/c/d/e/f.foo")).as_path());
+    assert_eq!(path::Path::new("../../../../f.foo"), relative_path(path::Path::new("/a/b/c/d/e"), path::Path::new("/a/f.foo")).as_path());
   }
   
 }

@@ -18,6 +18,8 @@ fi
 
 name="$(basename "$spec")"
 
-cargo run -- --debug generate \
+cargo run -- \
+	--debug generate \
+	--title "Example Title" \
 	--template etc/static/template/treno/suite.html "$spec" \
 	--output tmp && "$BROWSER" "file://$PWD/tmp/${name%%.*}.html"
