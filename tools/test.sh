@@ -22,4 +22,5 @@ cargo run -- \
 	--debug generate \
 	--title "Example Title" \
 	--template etc/static/template/treno/suite.html "$spec" \
-	--output tmp && "$BROWSER" "file://$PWD/tmp/${name%%.*}.html"
+	--index etc/static/template/treno/index.html \
+	--output ./tmp && "$BROWSER" "file://$PWD/tmp/${name%%.*}.html"

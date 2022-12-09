@@ -197,9 +197,20 @@ fn format_path<P: AsRef<path::Path>>(input: P) -> Result<String, error::Error> {
   }
 }
 
+// a is assumed to be a directory; b is assumed to be a a file
 fn relative_path<P: AsRef<path::Path>>(a: P, b: P) -> path::PathBuf {
-  let ca: Vec<_> = a.as_ref().components().collect();
-  let cb: Vec<_> = b.as_ref().components().collect();
+  let a = a.as_ref();
+  let b = b.as_ref();
+  println!(">>> GO GO REL; A: {} B: {}", a.display(), b.display());
+  
+  let ca: Vec<_> = a.components().collect();
+  let cb: Vec<_> = b.components().collect();
+  if !b.is_absolute() {
+    let mut c = path::PathBuf::new();
+    c.push(a);
+    c.push(b);
+    return c;
+  }
   
   let mut n = 0;
   for i in 0..ca.len() {
@@ -243,8 +254,11 @@ mod tests {
   
   #[test]
   fn test_relative_path() {
-    assert_eq!(path::Path::new("b.foo"), relative_path(path::Path::new("a"), path::Path::new("a/b.foo")).as_path());
     assert_eq!(path::Path::new("b.foo"), relative_path(path::Path::new("/a"), path::Path::new("/a/b.foo")).as_path());
+    assert_eq!(path::Path::new("a/b/c.foo"), relative_path(path::Path::new("a"), path::Path::new("b/c.foo")).as_path());
+    assert_eq!(path::Path::new("a/b/c.foo"), relative_path(path::Path::new("a/b"), path::Path::new("c.foo")).as_path());
+    assert_eq!(path::Path::new("/a/b/c/f.foo"), relative_path(path::Path::new("/a/b/c"), path::Path::new("f.foo")).as_path());
+    assert_eq!(path::Path::new("/a/b/c/f.foo"), relative_path(path::Path::new("/a/b/c/"), path::Path::new("f.foo")).as_path());
     
     assert_eq!(path::Path::new("b/c/d.foo"), relative_path(path::Path::new("/a"), path::Path::new("/a/b/c/d.foo")).as_path());
     assert_eq!(path::Path::new("c/d.foo"), relative_path(path::Path::new("/a/b"), path::Path::new("/a/b/c/d.foo")).as_path());
@@ -254,7 +268,10 @@ mod tests {
     assert_eq!(path::Path::new("../c/d.foo"), relative_path(path::Path::new("/a/b/x"), path::Path::new("/a/b/c/d.foo")).as_path());
     assert_eq!(path::Path::new("../../c/d.foo"), relative_path(path::Path::new("/a/b/x/y"), path::Path::new("/a/b/c/d.foo")).as_path());
     assert_eq!(path::Path::new("../../c/d/e/f.foo"), relative_path(path::Path::new("/a/b/x/y"), path::Path::new("/a/b/c/d/e/f.foo")).as_path());
+    
     assert_eq!(path::Path::new("../../../../f.foo"), relative_path(path::Path::new("/a/b/c/d/e"), path::Path::new("/a/f.foo")).as_path());
+    assert_eq!(path::Path::new("../../../../f.foo"), relative_path(path::Path::new("/a/b/c/d/e/"), path::Path::new("/a/f.foo")).as_path());
+    assert_eq!(path::Path::new("../../../../../f.foo"), relative_path(path::Path::new("/a/b/c/d/e/"), path::Path::new("/f.foo")).as_path());
   }
   
 }
