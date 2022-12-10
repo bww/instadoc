@@ -7,6 +7,7 @@ use std::io;
 use std::ffi;
 use std::path;
 use std::process;
+use std::cmp::min;
 
 use handlebars::{self, handlebars_helper};
 use clap::{Parser, Subcommand, Args};
@@ -87,8 +88,12 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
     None => None,
   };
   let (base, index) = match &cmd.output {
-    Some(output) => (Some(output), Some(output_path("index", output, "html")?)),
+    Some(output) => (Some(output), Some(relative_path(output, output_path("index", output, "html")?))),
     None => (None, None),
+  };
+  let index_str = match &index {
+    Some(index) => Some(index.display().to_string()),
+    None => None,
   };
   
   for input in &cmd.docs {
@@ -108,8 +113,8 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
     
     let mut context: model::Suite = serde_json::from_str(&data)?;
     context.process(model::Meta{
-      index: convert_osstr(&index)?,
       generated: chrono::Utc::now(),
+      index: index_str.clone(),
     });
     
     if let Some(output) = output {
@@ -124,7 +129,7 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
         };
         let rel = if let Some(index) = &index {
           let rel = match base {
-            Some(base) => relative_path(&ffi::OsString::from(&base), &output),
+            Some(base) => relative_path(ffi::OsString::from(base), &output),
             None => relative_path(index, &output),
           };
           match rel.to_str() {
@@ -166,24 +171,13 @@ fn generate(opt: &Options, cmd: &GenerateOptions) -> Result<(), error::Error> {
       meta: None,
     };
     context.process(model::Meta{
-      index: convert_osstr(&index)?,
       generated: chrono::Utc::now(),
+      index: index_str.clone(),
     });
     writer.write(hdl.render("index", &context)?.as_bytes())?;
   }
   
   Ok(())
-}
-
-fn convert_osstr(input: &Option<ffi::OsString>) -> Result<Option<String>, error::Error> {
-  let input = match input {
-    Some(input) => input,
-    None => return Ok(None),
-  };
-  match input.to_str() {
-    Some(input) => Ok(Some(input.to_owned())),
-    None => Err(error::Error::ConversionError(format!("Invalid string: {:?}", input))),
-  }
 }
 
 fn format_path<P: AsRef<path::Path>>(input: P) -> Result<String, error::Error> {
@@ -198,22 +192,16 @@ fn format_path<P: AsRef<path::Path>>(input: P) -> Result<String, error::Error> {
 }
 
 // a is assumed to be a directory; b is assumed to be a a file
-fn relative_path<P: AsRef<path::Path>>(a: P, b: P) -> path::PathBuf {
+fn relative_path<A: AsRef<path::Path>, B: AsRef<path::Path>>(a: A, b: B) -> path::PathBuf {
   let a = a.as_ref();
   let b = b.as_ref();
-  println!(">>> GO GO REL; A: {} B: {}", a.display(), b.display());
   
   let ca: Vec<_> = a.components().collect();
   let cb: Vec<_> = b.components().collect();
-  if !b.is_absolute() {
-    let mut c = path::PathBuf::new();
-    c.push(a);
-    c.push(b);
-    return c;
-  }
+  let cn = min(ca.len(), cb.len());
   
   let mut n = 0;
-  for i in 0..ca.len() {
+  for i in 0..cn {
     if ca[i] != cb[i] {
       break;
     }
@@ -232,7 +220,7 @@ fn relative_path<P: AsRef<path::Path>>(a: P, b: P) -> path::PathBuf {
   c
 }
 
-fn output_path<P: AsRef<path::Path>>(input: P, root: &str, ext: &str) -> Result<ffi::OsString, error::Error> {
+fn output_path<P: AsRef<path::Path>>(input: P, root: &str, ext: &str) -> Result<path::PathBuf, error::Error> {
   fs::create_dir_all(root)?;
   
   let name = match input.as_ref().file_name() {
@@ -245,7 +233,7 @@ fn output_path<P: AsRef<path::Path>>(input: P, root: &str, ext: &str) -> Result<
   buf.push(name);
   buf.set_extension(ext);
   
-  Ok(buf.into_os_string())
+  Ok(buf)
 }
 
 #[cfg(test)]
@@ -255,10 +243,10 @@ mod tests {
   #[test]
   fn test_relative_path() {
     assert_eq!(path::Path::new("b.foo"), relative_path(path::Path::new("/a"), path::Path::new("/a/b.foo")).as_path());
-    assert_eq!(path::Path::new("a/b/c.foo"), relative_path(path::Path::new("a"), path::Path::new("b/c.foo")).as_path());
-    assert_eq!(path::Path::new("a/b/c.foo"), relative_path(path::Path::new("a/b"), path::Path::new("c.foo")).as_path());
-    assert_eq!(path::Path::new("/a/b/c/f.foo"), relative_path(path::Path::new("/a/b/c"), path::Path::new("f.foo")).as_path());
-    assert_eq!(path::Path::new("/a/b/c/f.foo"), relative_path(path::Path::new("/a/b/c/"), path::Path::new("f.foo")).as_path());
+    assert_eq!(path::Path::new("b.foo"), relative_path(path::Path::new("a"), path::Path::new("a/b.foo")).as_path());
+    assert_eq!(path::Path::new("../b/c.foo"), relative_path(path::Path::new("a"), path::Path::new("b/c.foo")).as_path());
+    assert_eq!(path::Path::new("../../c.foo"), relative_path(path::Path::new("a/b"), path::Path::new("c.foo")).as_path());
+    assert_eq!(path::Path::new("../../../../f.foo"), relative_path(path::Path::new("/a/b/c"), path::Path::new("f.foo")).as_path());
     
     assert_eq!(path::Path::new("b/c/d.foo"), relative_path(path::Path::new("/a"), path::Path::new("/a/b/c/d.foo")).as_path());
     assert_eq!(path::Path::new("c/d.foo"), relative_path(path::Path::new("/a/b"), path::Path::new("/a/b/c/d.foo")).as_path());
