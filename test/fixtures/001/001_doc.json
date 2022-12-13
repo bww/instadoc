@@ -2,7 +2,7 @@
   "title": "Dashboard Management",
   "detail": {
     "type": "text/markdown",
-    "data": "# Cool header\nSome great data."
+    "data": "# Cool header\nAnd here's some great data."
   },
   "sections": [
     {
@@ -10,7 +10,7 @@
       "title": "Main",
       "detail": {
         "type": "text/markdown",
-        "data": "# Cool section; enjoy this section."
+        "data": "# The main section; enjoy this section."
       }
     },
     {
@@ -30,13 +30,16 @@
       "resource": "/foo/bar",
       "detail": {
         "type": "text/markdown",
-        "data": "# Cool header\nSome great data."
+        "data": "# Top-notch header\nDoin' it again, better than before."
       },
       "attrs": {
-        "scopes": [
-          "read:workspace",
-          "write:connection"
-        ]
+        "acl": {
+          "context": "Workspace",
+          "scopes": [
+            "read:workspace",
+            "write:connection"
+          ]
+        }
       },
       "params": [
         {
@@ -53,7 +56,7 @@
           "title": "First example",
           "detail": {
             "type": "text/markdown",
-            "data": "# Cool header\nSome great data."
+            "data": "# Nice example header\nDetails will be forthcoming."
           },
           "request": {
             "data": "GET /foo HTTP/1.1\n"

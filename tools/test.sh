@@ -23,4 +23,4 @@ cargo run -- \
 	--title "Example Title" \
 	--template etc/static/template/treno/suite.html "$spec" \
 	--index etc/static/template/treno/index.html \
-	--output ./tmp && "$BROWSER" "file://$PWD/tmp/${name%%.*}.html"
+	--output tmp && "$BROWSER" "file://$PWD/tmp/${name%%.*}.html"

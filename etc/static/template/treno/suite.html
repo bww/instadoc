@@ -6,7 +6,7 @@
     <style type="text/css">
       html {
         font-family: 'Helvetica Neue', 'Helvetica', sans-serif;
-        margin: 25px 50px;
+        margin: 1.5em 3em;
       }
       a {
         color: #0969da;
@@ -21,19 +21,22 @@
       code {
         background-color: rgba(175, 184, 193, 0.2);
         padding: 0.2em 0.4em;
-        border-radius: 6px;
+        border-radius: 0.25em;
       }
       pre {
         background-color: rgba(175, 184, 193, 0.2);
         padding: 1em;
-        border-radius: 6px;
+        border-radius: 0.25em;
         overflow: auto;
       }
       div.content h1 h2 h3 h4 h5{
         font-size: 0.85em;
       }
       svg.icon {
-        margin: 2px 6px;
+        margin: 0.1em 0.2em;
+      }
+      ul li {
+        padding: 0.1em 0;
       }
     </style>
   </head>
@@ -106,10 +109,10 @@
         {{ #if attrs }}
           <h3>Attributes</h3>
           {{ #each attrs }}
-            {{ #if (eq @key "scopes") }}
-            Required ACL scopes:
+            {{ #if (eq @key "acl") }}
+            Required ACL rights in <em>{{ context }}</em>:
             <ul>
-              {{ #each this }}<li class="scope">{{ this }}</li>{{ /each }}
+              {{ #each scopes }}<li class="scope"><code>{{ this }}</code></li>{{ /each }}
             </ul>
             {{~ /if ~}}
           {{ /each }}
